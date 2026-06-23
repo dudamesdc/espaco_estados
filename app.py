@@ -290,21 +290,22 @@ elif page.startswith("3"):
             poles = parse_poles(poles_txt)
             result = reference_tracker(A_np, B_np, C_np, A_sym, B_sym, C_sym, poles)
             st.subheader("1) Sistema Aumentado")
-            st.markdown("Adicionamos um estado integrador $\\xi$ tal que $\\dot{\\xi} = r - Cx$.")
-            st.latex(r"A_a = \begin{bmatrix} A & 0 \\ -C & 0 \end{bmatrix},"
-                     r"\quad B_a = \begin{bmatrix} B \\ 0 \end{bmatrix}")
+            st.markdown("Adicionamos a dinâmica do erro no topo do vetor de estados:")
+            st.latex(r"A_a = \begin{bmatrix} 0 & C \\ 0 & A \end{bmatrix}, \quad B_a = \begin{bmatrix} 0 \\ B \end{bmatrix}")
             c1, c2 = st.columns(2)
             with c1: show_matrix(result["A_a_sym"], "A_a")
             with c2: show_matrix(result["B_a_sym"], "B_a")
+            
             st.subheader("2) Ackermann no Sistema Aumentado")
             render_ackermann(result["ack"], var_name="s", mat_name="A_a",
                              col_name="B_a", u_label=r"\mathcal{U}_a",
                              gain_label="K_a", is_observer=False)
+                             
             st.subheader("3) Separação dos Ganhos")
-            st.latex(r"K_a = \begin{bmatrix} K_x & K_i \end{bmatrix}")
+            st.latex(r"K_a = \begin{bmatrix} K_i & K_x \end{bmatrix}") # Ordem invertida
             c1, c2 = st.columns(2)
-            with c1: show_matrix(result["K_x_sym"], "K_x")
-            with c2: show_matrix(result["K_i_sym"], "K_i")
+            with c1: show_matrix(result["K_i_sym"], "K_i")
+            with c2: show_matrix(result["K_x_sym"], "K_x")
             st.markdown("**Lei de controle:**")
             st.latex(r"u = K_x\,x + K_i\,\xi, \quad \dot{\xi} = r - Cx")
         except Exception as ex:

@@ -153,15 +153,22 @@ def observer_gain_steps(A_np, C_np, A_sym, C_sym, poles):
 def reference_tracker(A_np, B_np, C_np, A_sym, B_sym, C_sym, poles_aug):
     n = A_np.shape[0]
     p = C_np.shape[0]
-    A_a_np = np.block([[A_np, np.zeros((n, p))],
-                       [-C_np, np.zeros((p, p))]])
-    B_a_np = np.vstack([B_np, np.zeros((p, B_np.shape[1]))])
+    
+    
+    A_a_np = np.block([[np.zeros((p, p)), C_np],
+                       [np.zeros((n, p)), A_np]])
+    B_a_np = np.vstack([np.zeros((p, B_np.shape[1])), B_np])
+    
     A_a_sym = _nsimplify_mat(A_a_np)
     B_a_sym = _nsimplify_mat(B_a_np)
+    
     ack_data = ackermann_gain_steps(A_a_np, B_a_np, A_a_sym, B_a_sym, poles_aug, is_observer=False)
+    
     K_a = ack_data["K_np"]
-    K_x = K_a[:, :n]
-    K_i = K_a[:, n:]
+    
+    K_i = K_a[:, :p]
+    K_x = K_a[:, p:]
+    
     return {
         "A_a_sym": A_a_sym, "B_a_sym": B_a_sym,
         "K_a_sym": ack_data["K_sym"],

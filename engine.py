@@ -3,6 +3,7 @@ import sympy as sp
 from scipy.linalg import expm
 import control as ctrl
 
+
 def parse_matrix(text: str):
     rows = [list(map(float, r.split())) for r in text.strip().split(";")]
     arr = np.array(rows)
